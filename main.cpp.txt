@@ -1,0 +1,97 @@
+#включить <gtest-mpi-listener.hpp>
+#включить <gtest/gtest.h>
+#включить <вектор>
+#включить <алгоритм>
+#include "./max_vector_value.h"
+
+TEST(Parallel_maxVectorValue, TestAverageSize) {
+  int ранг;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  const int sizeVector = 100;
+ std:: vector<int> > globalVector(sizeVector);
+
+
+  если (ранг = = 0) {
+ globalVector = getRandomVector(sizeVector);
+  }
+
+  int globalMax = maxVectorValueParallel(globalVector);
+
+  если (ранг = = 0) {
+    int seqentialMax = maxVectorValue(globalVector);
+    ASSERT_EQ(seqentialMax, globalMax);
+  }
+}
+
+TEST(Parallel_maxVectorValue, TestSmallSize) {
+  int ранг;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  const int sizeVector = 5;
+ std:: vector<int> > globalVector(sizeVector);
+
+  если (ранг = = 0) {
+ globalVector = getRandomVector(sizeVector);
+  }
+
+  int globalMax = maxVectorValueParallel(globalVector);
+
+  если (ранг = = 0) {
+    int seqentialMax = maxVectorValue(globalVector);
+    ASSERT_EQ(seqentialMax, globalMax);
+  }
+}
+
+Тест(Parallel_maxVectorValue, TestLargeSize) {
+  int ранг;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  const int sizeVector = 1000;
+ std:: vector<int> > globalVector(sizeVector);
+
+  если (ранг = = 0) {
+ globalVector = getRandomVector(sizeVector);
+  }
+
+  int globalMax = maxVectorValueParallel(globalVector);
+
+  если (ранг = = 0) {
+    int seqentialMax = maxVectorValue(globalVector);
+    ASSERT_EQ(seqentialMax, globalMax);
+  }
+}
+
+TEST(Parallel_maxVectorValue, TestIncorrectSize) {
+  int ранг;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  const int sizeVector = 0;
+ std:: vector<int> > globalVector(sizeVector);
+
+  если (ранг = = 0) {
+ globalVector = getRandomVector(sizeVector);
+  }
+
+  ASSERT_ANY_THROW(maxVectorValueParallel(globalVector));
+}
+
+TEST(Parallel_maxVectorValue, TestCreateVector) {
+  int ранг;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+ std:: vector<int> globalVector = {>12, 34, 154, 86, 37, 12};
+
+  int globalMax = maxVectorValueParallel(globalVector);
+
+  если (ранг = = 0) {
+    ASSERT_EQ(154, globalMax);
+  }
+}
+
+int main(int argc, char **argv) {
+  ::тестирование::InitGoogleTest(&argc, argv);
+  MPI_Init(&argc, &argv);
+  ::тестирование:: AddGlobalTestEnvironment(новый GTestMPIListener:: MPIEnvironment);
+ ::тестирование:: TestEventListeners& listeners =
+    ::тестирование:: UnitTest::GetInstance()->слушатели();
+ listeners.Release(listeners.default_result_printer());
+ listeners.Release(listeners.default_xml_generator());
+ listeners.Append(new GTestMPIListener:: MPIMinimalistPrinter);
+  возврат RUN_ALL_TESTS();
+}
